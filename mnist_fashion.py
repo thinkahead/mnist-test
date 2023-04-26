@@ -74,7 +74,7 @@ class LitMNIST(LightningModule):
         )
         
         self.fc1 = nn.Linear(64*6*6,600)
-        self.drop = nn.Dropout2d(0.25)
+        self.drop = nn.Dropout(0.25)
         self.fc2 = nn.Linear(600, 120)
         self.fc3 = nn.Linear(120, 10)
         
@@ -191,19 +191,22 @@ torch.onnx.export(model, dummy_input, '/tmp/mnist3.onnx', verbose=True, input_na
 #model.to_onnx('/tmp/mnist2.onnx', dummy_input, input_names=input_names, output_names=output_names)
 #torch.onnx.export(model, dummy_input, '/tmp/mnist1.onnx', verbose=True, input_names=input_names, output_names=output_names)
 
-print("Copying /tmp/mnist3.onnx")
-import os
-import boto3
-from boto3 import session
+if trainer.global_rank==0:
+    print("Copying /tmp/mnist3.onnx")
+    import os
+    import boto3
+    from boto3 import session
 
-key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-endpoint_url = os.environ.get('AWS_S3_ENDPOINT')
-session = boto3.session.Session(aws_access_key_id=key_id, aws_secret_access_key=secret_key)
-s3_client = boto3.client('s3', aws_access_key_id=key_id, aws_secret_access_key=secret_key,endpoint_url=endpoint_url,verify=False)
-buckets=s3_client.list_buckets()
-for bucket in buckets['Buckets']: print(bucket['Name'])
-print(bucket['Name'])
-modelfile='/tmp/mnist3.onnx'
-#s3_client.upload_file(modelfile, bucket['Name'],'hf_model.onnx')
-s3_client.upload_file(modelfile, bucket['Name'],'mmm.onnx')
+    key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    endpoint_url = os.environ.get('AWS_S3_ENDPOINT')
+    session = boto3.session.Session(aws_access_key_id=key_id, aws_secret_access_key=secret_key)
+    s3_client = boto3.client('s3', aws_access_key_id=key_id, aws_secret_access_key=secret_key,endpoint_url=endpoint_url,verify=False)
+    buckets=s3_client.list_buckets()
+    for bucket in buckets['Buckets']: print(bucket['Name'])
+    modelfile='/tmp/mnist3.onnx'
+    #s3_client.upload_file(modelfile, bucket['Name'],'hf_model.onnx')
+    myhost = os.uname()[1]
+    s3_client.upload_file(modelfile, bucket['Name'],myhost+'mmm.onnx')
+    print([item.get("Key") for item in s3_client.list_objects_v2(Bucket=bucket['Name']).get("Contents")])
+    #s3_client.delete_object(Bucket=bucket['Name'],Key='mmm.onnx')
