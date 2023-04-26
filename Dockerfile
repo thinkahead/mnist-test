@@ -3,5 +3,8 @@ FROM ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230426
 COPY mnist_fashion.py mnist_fashion.py
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN chmod -R 777 /app
+RUN pwd
+RUN whoami
+RUN chmod -R 777 .
+#RUN chmod -R 777 /app
 RUN chmod -R 777 /workspace
