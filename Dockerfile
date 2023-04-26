@@ -1,4 +1,4 @@
-FROM ghcr.io/foundation-model-stack/base:pytorch-latest-nightly
+FROM ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230426
 #FROM quay.io/michaelclifford/mnist-test:latest
 COPY mnist_fashion.py mnist_fashion.py
 COPY requirements.txt requirements.txt
