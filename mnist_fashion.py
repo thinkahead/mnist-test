@@ -189,3 +189,21 @@ dynamic_axes={'input_0' : {0 : 'batch_size'},'output_0' : {0 : 'batch_size'}}
 torch.onnx.export(model, dummy_input, '/tmp/mnist3.onnx', verbose=True, input_names=input_names, output_names=output_names, dynamic_axes=dynamic_axes)
 #model.to_onnx('/tmp/mnist2.onnx', dummy_input, input_names=input_names, output_names=output_names)
 #torch.onnx.export(model, dummy_input, '/tmp/mnist1.onnx', verbose=True, input_names=input_names, output_names=output_names)
+
+print("Copying /tmp/mnist3.onnx")
+import os
+import boto3
+from boto3 import session
+
+key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+endpoint_url = os.environ.get('AWS_S3_ENDPOINT')
+session = boto3.session.Session(aws_access_key_id=key_id, aws_secret_access_key=secret_key)
+s3_client = boto3.client('s3', aws_access_key_id=key_id, aws_secret_access_key=secret_key,endpoint_url=endpoint_url,verify=False)
+buckets=s3_client.list_buckets()
+for bucket in buckets['Buckets']: print(bucket['Name'])
+print(bucket['Name'])
+modelfile='/tmp/mnist3.onnx'
+#s3_client.upload_file(modelfile, bucket['Name'],'hf_model.onnx')
+s3_client.upload_file(modelfile, bucket['Name'],'mmm.onnx')
+print("GLOBAL_RANK: is ", os.getenv("GLOBAL_RANK"))
