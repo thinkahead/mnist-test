@@ -208,5 +208,6 @@ if trainer.global_rank==0:
     for bucket in buckets['Buckets']: print(bucket['Name'])
     #s3_client.upload_file(modelfile, bucket['Name'],'hf_model.onnx')
     s3_client.upload_file(modelfile, bucket['Name'],uploaded_file_name)
+    print('uploaded_file_name',uploaded_file_name)
     print([item.get("Key") for item in s3_client.list_objects_v2(Bucket=bucket['Name']).get("Contents")])
     #s3_client.delete_object(Bucket=bucket['Name'],Key='mmm.onnx')
