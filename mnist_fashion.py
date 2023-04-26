@@ -165,7 +165,7 @@ print("LOCAL: ", int(os.environ.get("LOCAL_WORLD_SIZE", 1)))
 trainer = Trainer(
     accelerator="auto",
     # devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
-    max_epochs=20,
+    max_epochs=5,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
     num_nodes=int(os.environ.get("GROUP_WORLD_SIZE", 1)),
     devices=int(os.environ.get("LOCAL_WORLD_SIZE", 1)),
@@ -174,6 +174,7 @@ trainer = Trainer(
 
 # Train the model ⚡
 trainer.fit(model)
+print("GLOBAL_RANK: is ", trainer.global_rank)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
@@ -206,4 +207,3 @@ print(bucket['Name'])
 modelfile='/tmp/mnist3.onnx'
 #s3_client.upload_file(modelfile, bucket['Name'],'hf_model.onnx')
 s3_client.upload_file(modelfile, bucket['Name'],'mmm.onnx')
-print("GLOBAL_RANK: is ", os.getenv("GLOBAL_RANK"))
